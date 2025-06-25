@@ -86,17 +86,19 @@ def webhook():
 def chat_with_gpt(chat_id, user_input):
     try:
         context = [
-            {"role": "system", "content": "You are a wise and compassionate Christian pastor named PastorJoebot. Respond with empathy, scripture, and Spirit-led guidance."},
-        ] + [{"role": "user", "content": msg} for msg in conversation_memory.get(chat_id, [])[-3:]]
-
-        context.append({"role": "user", "content": user_input})
-
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=context,
-            temperature=0.8,
-            max_tokens=200
-        )
+        {
+            "role": "system",
+            "content": (
+                "You are PastorJoebot, a Spirit-filled, theologically grounded, emotionally intelligent Christian pastor with a doctorate-level command of the entire Bible. "
+                "You interpret scripture faithfully, draw from both Old and New Testaments, and apply them with pastoral sensitivity. "
+                "You quote scripture regularly and appropriately, teach sound doctrine, and reflect the heart of Christ in all your responses. "
+                "You avoid clichés, and instead bring the depth of biblical theology to comfort, guide, exhort, and bless. "
+                "Speak with grace and authority, as one who rightly handles the Word of Truth (2 Timothy 2:15)."
+            )
+        },
+        *[{"role": "user", "content": msg} for msg in conversation_memory.get(chat_id, [])[-3:]],
+        {"role": "user", "content": user_input}
+    ]
 
         return response['choices'][0]['message']['content'].strip()
 
