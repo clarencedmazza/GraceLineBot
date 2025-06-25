@@ -3,133 +3,71 @@ import requests, os, openai
 
 app = Flask(__name__)
 
-# Load environment variables
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+# Environment Variables
+TOKEN = os.getenv("BOT_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+BOT_URL = f"https://api.telegram.org/bot{TOKEN}"
 
-# Validate tokens
-if not BOT_TOKEN or not OPENAI_API_KEY:
-    raise ValueError("Missing BOT_TOKEN or OPENAI_API_KEY")
-
-openai.api_key = OPENAI_API_KEY
-BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
-
-# Simulated memory (session only)
+# Memory per chat (in-memory only)
 conversation_memory = {}
-
-# Journaling log
-journal_entries = {}
-
-# Daily verses (manual list for now)
-daily_verses = [
-    "Isaiah 41:10 - Fear not, for I am with you.",
-    "Psalm 34:18 - The Lord is close to the brokenhearted.",
-    "Romans 15:13 - May the God of hope fill you with joy and peace.",
-]
 
 @app.route('/')
 def home():
-    return 'PastorJoebot is running!'
+    return 'PastorJoebot is live!'
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
     data = request.get_json()
+    if not data or 'message' not in data:
+        return 'No data', 400
 
-    try:
-        chat_id = data['message']['chat']['id']
+    chat_id = data['message']['chat']['id']
+    user_input = data['message'].get('text') or ''
 
-        if 'voice' in data['message']:
-            return send_message(chat_id, "Voice message received. Voice-to-text support is coming soon.")
+    # Store conversation
+    if chat_id not in conversation_memory:
+        conversation_memory[chat_id] = []
+    conversation_memory[chat_id].append(user_input)
 
-        text = data['message'].get('text', '')
+    # GPT Response
+    reply = chat_with_gpt(chat_id, user_input)
+    send_message(chat_id, reply)
+    return 'OK', 200
 
-        # Memory
-        memory = conversation_memory.get(chat_id, [])
-        memory.append(text)
-        conversation_memory[chat_id] = memory[-5:]  # limit memory to last 5 messages
-
-        # Check for crisis language
-        if any(word in text.lower() for word in ['suicidal', 'kill myself', 'worthless', 'no purpose']):
-            crisis_response = (
-                "I'm so sorry you're feeling this way. Please know that your life is deeply loved by God.\n\n"
-                "Psalm 34:18 says, 'The Lord is close to the brokenhearted.' You're not alone.\n"
-                "Would you like to be connected with a Christian counselor or local support group?"
-            )
-            return send_message(chat_id, crisis_response)
-
-        # Check for prayer
-        if "pray" in text.lower():
-            return handle_prayer(chat_id, text)
-
-        # Check for journaling
-        if "journal" in text.lower() or "write" in text.lower():
-            return start_journaling(chat_id)
-
-        # Daily verse request
-        if "verse" in text.lower():
-            verse = daily_verses[0]  # rotate or randomize later
-            return send_message(chat_id, f"📖 Today's verse: {verse}")
-
-        # Church finder placeholder
-        if "church" in text.lower() or "near me" in text.lower():
-            return send_message(chat_id, "I’d love to help you find a local church. What’s your ZIP code? (Feature coming soon!)")
-
-        # Default: pass to GPT
-        reply = chat_with_gpt(chat_id, text)
-        return send_message(chat_id, reply)
-
-    except Exception as e:
-        print("Webhook error:", e)
-        return 'Error', 400
-
-# --- Core ChatGPT Brain ---
 def chat_with_gpt(chat_id, user_input):
-    try:
-        context = [
+    openai.api_key = OPENAI_API_KEY
+
+    context = [
         {
             "role": "system",
             "content": (
                 "You are PastorJoebot, a Spirit-filled, theologically grounded, emotionally intelligent Christian pastor with a doctorate-level command of the entire Bible. "
-                "You interpret scripture faithfully, draw from both Old and New Testaments, and apply them with pastoral sensitivity. "
-                "You quote scripture regularly and appropriately, teach sound doctrine, and reflect the heart of Christ in all your responses. "
-                "You avoid clichés, and instead bring the depth of biblical theology to comfort, guide, exhort, and bless. "
-                "Speak with grace and authority, as one who rightly handles the Word of Truth (2 Timothy 2:15)."
+                "You offer biblically faithful, spiritually mature, and deeply compassionate guidance. "
+                "You respond with grace, quote Scripture in context, and offer robust theology and pastoral wisdom. "
+                "Avoid clichés and engage in thoughtful, conversational dialogue. You never shut down questions; you lean in and walk with people in their struggles and joys."
             )
         },
         *[{"role": "user", "content": msg} for msg in conversation_memory.get(chat_id, [])[-3:]],
         {"role": "user", "content": user_input}
     ]
 
-        return response['choices'][0]['message']['content'].strip()
-
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=context
+        )
+        return response['choices'][0]['message']['content']
     except Exception as e:
-        print("GPT error:", e)
-        return "I'm here for you, even when I can’t find the right words right away."
+        return ("I'm having a temporary issue connecting to my spiritual guidance center. Please try again in a moment."
+                " If the issue persists, please let my creator know. 🙏")
 
-# --- Journaling ---
-def start_journaling(chat_id):
-    prompt = (
-        "📝 Would you like to reflect on one of these?\n"
-        "1. What are you feeling today?\n"
-        "2. What is something you want to surrender to God?\n"
-        "3. What verse has spoken to you recently?"
-    )
-    journal_entries[chat_id] = []
-    return send_message(chat_id, prompt)
-
-# --- Prayer Requests ---
-def handle_prayer(chat_id, message):
-    # Store or log request
-    print(f"Prayer request from {chat_id}: {message}")
-    return send_message(chat_id, "🙏 I’ve recorded your prayer request. Know that God hears you.")
-
-# --- Telegram Send Message ---
 def send_message(chat_id, text):
-    url = f"{BOT_URL}/sendMessage"
+    url = f'{BOT_URL}/sendMessage'
     payload = {'chat_id': chat_id, 'text': text}
-    requests.post(url, json=payload)
-    return 'OK', 200
+    try:
+        requests.post(url, json=payload)
+    except Exception as e:
+        print(f"Failed to send message: {e}")
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
-
+    app.run(host='0.0.0.0', port=5000)
