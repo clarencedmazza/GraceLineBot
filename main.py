@@ -5,6 +5,9 @@ import os
 app = Flask(__name__)
 
 TOKEN = os.getenv("BOT_TOKEN")
+if not TOKEN:
+    raise ValueError("BOT_TOKEN environment variable is missing.")
+
 BOT_URL = f'https://api.telegram.org/bot{TOKEN}'
 
 @app.route('/')
