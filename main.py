@@ -12,8 +12,6 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
-# OpenAI client for API calls
-client = OpenAI(api_key=OPENAI_API_KEY)
 
 @app.route('/')
 def home():
