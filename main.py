@@ -1,7 +1,9 @@
 from flask import Flask, request
 import os
 import requests
-from openai import OpenAI
+import openai
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 
 app = Flask(__name__)
 
@@ -29,7 +31,7 @@ def webhook():
 
 def chat_with_gpt(message):
     try:
-        response = client.chat.completions.create(
+        response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": (
@@ -44,6 +46,7 @@ def chat_with_gpt(message):
     except Exception as e:
         print(f"🔥 OpenAI error: {e}")
         return "I'm having a temporary issue connecting to my spiritual guidance center. Please try again later."
+
 
 def send_telegram_message(chat_id, text):
     url = f"{BOT_URL}/sendMessage"
