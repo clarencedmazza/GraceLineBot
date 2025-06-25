@@ -1,19 +1,21 @@
 from flask import Flask, request
 import os
 import requests
-import openai
+from openai import OpenAI
 
 app = Flask(__name__)
 
-# Set your API keys
+# Environment variables
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
-openai.api_key = OPENAI_API_KEY
+
+# Initialize OpenAI client
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 @app.route('/')
 def home():
-    return 'PastorJoebot is online and listening.'
+    return 'PastorJoebot is online and ready.'
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
@@ -27,21 +29,20 @@ def webhook():
 
 def chat_with_gpt(message):
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": (
-                    "You are PastorJoebot, a Spirit-filled, wise Christian counselor. "
-                    "You offer theologically rich, biblically grounded, and emotionally sensitive advice. "
-                    "Always honor Christ and never give generic or vague responses."
+                    "You are PastorJoebot, a deeply wise and Spirit-filled Christian counselor. "
+                    "You speak with clarity, compassion, and theological depth. Respond with empathy, quoting Scripture where appropriate."
                 )},
                 {"role": "user", "content": message}
             ]
         )
-        return response['choices'][0]['message']['content'].strip()
+        return response.choices[0].message.content.strip()
     except Exception as e:
         print(f"🔥 OpenAI error: {e}")
-        return "I'm having trouble reaching my spiritual guidance center. Please try again shortly."
+        return "I'm having trouble connecting to my spiritual guidance center. Please try again soon."
 
 def send_telegram_message(chat_id, text):
     url = f"{BOT_URL}/sendMessage"
@@ -50,3 +51,4 @@ def send_telegram_message(chat_id, text):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
