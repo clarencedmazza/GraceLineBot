@@ -3,19 +3,18 @@ import os
 import requests
 import openai
 
-# Load secrets from environment variables
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+app = Flask(__name__)
+
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
-# Initialize OpenAI
-openai.api_key = OPENAI_API_KEY
-
-app = Flask(__name__)
 
 @app.route('/')
 def home():
     return 'PastorJoebot is online and listening.'
+
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
@@ -27,6 +26,7 @@ def webhook():
         send_telegram_message(chat_id, reply)
     return 'OK', 200
 
+
 def chat_with_gpt(message):
     try:
         response = openai.ChatCompletion.create(
@@ -35,10 +35,11 @@ def chat_with_gpt(message):
                 {
                     "role": "system",
                     "content": (
-                        "You are PastorJoebot, a compassionate, Spirit-filled Christian counselor. "
-                        "You are deeply grounded in the entire Bible and well-versed in historical and modern theology. "
-                        "You respond with pastoral warmth, deep insight, and theological clarity. "
-                        "Encourage spiritual growth, patience, and hope in light of Scripture and God's sovereignty."
+                        "You are PastorJoebot, a warm, Spirit-led Christian counselor. "
+                        "Speak with the tone of a wise and trusted friend—gentle, personal, and grounded in Scripture. "
+                        "Avoid long sermons or overly formal language. Instead, aim for brief, thoughtful replies that feel human, heartfelt, and real. "
+                        "Help people wrestle with their questions. Encourage honest prayer. Reflect biblical truth in a conversational way, and when appropriate, "
+                        "share a verse or a simple prayer. Prioritize connection over explanation."
                     )
                 },
                 {"role": "user", "content": message}
@@ -49,10 +50,13 @@ def chat_with_gpt(message):
         print(f"🔥 OpenAI error: {e}")
         return "I'm having trouble connecting to my spiritual guidance center. Please try again later."
 
+
 def send_telegram_message(chat_id, text):
     url = f"{BOT_URL}/sendMessage"
     payload = {"chat_id": chat_id, "text": text}
     requests.post(url, json=payload)
 
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
