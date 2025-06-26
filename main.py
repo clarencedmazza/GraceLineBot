@@ -1,91 +1,63 @@
-from flask import Flask, request
-import os
-import requests
+from flask import Flask, request, jsonify
 import openai
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
+import os
 
 app = Flask(__name__)
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
-user_journals = {}
-user_prayers = {}
-
-@app.route('/')
+@app.route("/")
 def home():
-    return 'PastorJoebot is online and listening.'
+    return "🧭 AbideBot is ready to help you make wise decisions."
 
-@app.route('/webhook', methods=['POST'])
+@app.route("/webhook", methods=["POST"])
 def webhook():
     data = request.get_json()
-    if 'message' in data:
-        chat_id = data['message']['chat']['id']
-        user_input = data['message'].get('text', '').strip()
+    chat_id = data['message']['chat']['id']
+    user_input = data['message'].get('text', '').strip()
 
-        if user_input.lower().startswith('/journal'):
-            entry = user_input[8:].strip()
-            if entry:
-                user_journals.setdefault(chat_id, []).append(entry)
-                reply = "📝 Journal entry saved."
-            else:
-                reply = "Please write something after /journal to save it."
+    # Trigger decision helper
+    if user_input.lower().startswith("/decide"):
+        return send_reply(chat_id, "🧭 Please describe your situation or decision you're facing. Be as honest and detailed as you like.")
 
-        elif user_input.lower() == '/myjournal':
-            entries = user_journals.get(chat_id, [])
-            reply = "📖 Your journal entries:\n" + "\n".join(f"- {e}" for e in entries[-5:]) if entries else "📭 No journal entries yet."
+    # Let GPT guide the full decision process based on a single user message
+    return handle_decision(chat_id, user_input)
 
-        elif user_input.lower().startswith('/pray'):
-            prayer = user_input[5:].strip()
-            if prayer:
-                user_prayers.setdefault(chat_id, []).append(prayer)
-                reply = "🙏 I've recorded your prayer. Lifting it to the Lord with you."
-            else:
-                reply = "Please write something after /pray to submit a request."
+def handle_decision(chat_id, user_input):
+    system_prompt = """
+You are AbideBot, a wise Christian mentor inspired by Greg Koukl's book *Decision Making and the Will of God*.
 
-        elif user_input.lower() == '/myprayers':
-            prayers = user_prayers.get(chat_id, [])
-            reply = "🕊️ Your recent prayer requests:\n" + "\n".join(f"- {p}" for p in prayers[-5:]) if prayers else "📭 No prayer requests found."
+Your purpose is to help people make important life decisions by guiding them through biblical wisdom. You do not rely on mystical signs or feelings. You trust God's revealed will in Scripture and encourage people to:
+1. Ask if the choice violates God’s moral will.
+2. Use wisdom (consider goals, consequences, advice, desires, logic).
+3. Choose freely with faith if both options are morally good and wise.
 
-        else:
-            reply = chat_with_gpt(user_input)
+You are emotionally attuned, spiritually grounded, and respectful of the user’s autonomy. You gently challenge false beliefs, affirm truth, and encourage peace in freedom.
+"""
 
-        send_telegram_message(chat_id, reply)
-    return 'OK', 200
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_input}
+    ]
 
-def chat_with_gpt(message):
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You are PastorJoebot, a modern voice echoing the Spirit of Christ as revealed in the Gospels. "
-                        "You speak like a compassionate, wise friend—gentle, honest, and deeply rooted in Jesus’ teachings. "
-                        "Let the words of Christ in the New Testament shape your tone, attitude, and heart. "
-                        "Avoid sounding robotic or overly formal—speak plainly, relationally, and with spiritual depth. "
-                        "When users share, listen first. Affirm what is true. Encourage honest prayer and spiritual curiosity. "
-                        "When helpful, reflect relevant scriptures, simple prayers, or open-ended questions. "
-                        "You may offer short blessings, journaling prompts, or wisdom summaries, but only if they serve the moment. "
-                        "Speak into the user's world—aware of modern struggles like burnout, doubt, parenting, identity, technology, and loneliness. "
-                        "Above all, be present. Don’t lecture. Don’t fix. Simply walk with them, like Jesus with the disciples on the road to Emmaus. "
-                        "When appropriate, gently reflect patterns in the user’s spiritual walk, as if you’re growing to know them personally. "
-                        "Your goal is to be a faithful, Spirit-led companion who helps people find meaning, peace, and hope in Jesus."
-                    )
-                },
-                {"role": "user", "content": message}
-            ]
-        )
-        return response['choices'][0]['message']['content'].strip()
-    except Exception as e:
-        print(f"🔥 OpenAI error: {e}")
-        return "I'm having trouble connecting to my spiritual guidance center. Please try again later."
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=messages,
+        temperature=0.7
+    )
 
-def send_telegram_message(chat_id, text):
-    url = f"{BOT_URL}/sendMessage"
-    payload = {"chat_id": chat_id, "text": text}
-    requests.post(url, json=payload)
+    bot_reply = response.choices[0].message['content']
+    return send_reply(chat_id, bot_reply)
+
+def send_reply(chat_id, text):
+    return jsonify({
+        "method": "sendMessage",
+        "chat_id": chat_id,
+        "text": text,
+        "parse_mode": "Markdown"
+    })
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
