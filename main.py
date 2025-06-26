@@ -3,18 +3,19 @@ import os
 import requests
 import openai
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-app = Flask(__name__)
-
+# Load secrets from environment variables
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
+# Initialize OpenAI
+openai.api_key = OPENAI_API_KEY
+
+app = Flask(__name__)
 
 @app.route('/')
 def home():
     return 'PastorJoebot is online and listening.'
-
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
@@ -25,7 +26,6 @@ def webhook():
         reply = chat_with_gpt(user_input)
         send_telegram_message(chat_id, reply)
     return 'OK', 200
-
 
 def chat_with_gpt(message):
     try:
@@ -40,17 +40,15 @@ def chat_with_gpt(message):
                 {"role": "user", "content": message}
             ]
         )
-        return response.choices[0].message.content.strip()
+        return response.choices[0].message["content"].strip()
     except Exception as e:
-        print(f"🔥 OpenAI error: {e}")
+        print(f"\U0001F525 OpenAI error: {e}")
         return "I'm having trouble connecting to my spiritual guidance center. Please try again later."
-
 
 def send_telegram_message(chat_id, text):
     url = f"{BOT_URL}/sendMessage"
     payload = {"chat_id": chat_id, "text": text}
     requests.post(url, json=payload)
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
