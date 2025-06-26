@@ -2,6 +2,7 @@ from flask import Flask, request
 import os
 import requests
 import openai
+import random
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -20,7 +21,7 @@ def webhook():
     data = request.get_json()
     if 'message' in data:
         chat_id = data['message']['chat']['id']
-        user_input = data['message'].get('text', '')
+        user_input = data['message'].get('text', '').strip()
 
         if user_input.lower().startswith('/journal'):
             entry = user_input[8:].strip()
@@ -28,14 +29,24 @@ def webhook():
                 user_journals.setdefault(chat_id, []).append(entry)
                 reply = "📝 Journal entry saved."
             else:
-                reply = "Please write something after /journal to save it."
+                reply = "✍️ Please write something after /journal to save it."
 
         elif user_input.lower() == '/myjournal':
             entries = user_journals.get(chat_id, [])
             if not entries:
-                reply = "📭 No journal entries yet."
+                reply = "📭 You have no journal entries yet."
             else:
                 reply = "📖 Your journal entries:\n" + "\n".join(f"- {e}" for e in entries[-5:])
+
+        elif user_input.lower() == '/checkin':
+            prompts = [
+                "🙏 What are you grateful for today?",
+                "🕊️ Where did you sense God's presence recently?",
+                "💭 What’s been weighing on your heart this week?",
+                "📖 Is there a Bible verse that's been speaking to you?",
+                "🗣️ What would you like to talk to God about right now?"
+            ]
+            reply = random.choice(prompts)
 
         else:
             reply = chat_with_gpt(user_input)
