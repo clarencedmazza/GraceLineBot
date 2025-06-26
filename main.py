@@ -29,7 +29,7 @@ def webhook():
 
 def chat_with_gpt(message):
     try:
-        response = openai.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": (
