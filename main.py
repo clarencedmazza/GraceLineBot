@@ -76,6 +76,9 @@ def handle_custom_commands(chat_id, user_input):
             return f"🗑️ Removed your last prayer:\n\n{removed}"
         return "There are no prayers to delete."
 
+    elif lower_input == '/dailydevotional':
+        return get_daily_devotional()
+
     # Fallback to GPT for anything else
     return chat_with_gpt(user_input)
 
@@ -107,6 +110,25 @@ def chat_with_gpt(message):
     except Exception as e:
         print(f"🔥 OpenAI error: {e}")
         return "I'm having trouble connecting to my spiritual guidance center. Please try again later."
+
+def get_daily_devotional():
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{
+                "role": "system",
+                "content": (
+                    "You are a Spirit-led Christian devotional writer. Create a fresh, daily devotional that sounds personal, honest, and rooted in Scripture. "
+                    "Choose a single verse from the Bible (ESV). Begin with a short, engaging title. Then list the verse. Follow with a reflection that's two short paragraphs—"
+                    "simple, clear, and heartfelt. End with a two-line prayer. Aim to encourage people who are weary, doubtful, anxious, or hungry for God. "
+                    "Avoid lofty language or long sermons—write like someone walking with a friend. Let grace, truth, and hope come through in every word."
+                )
+            }]
+        )
+        return response['choices'][0]['message']['content'].strip()
+    except Exception as e:
+        print(f"🔥 Devotional error: {e}")
+        return "I'm having trouble retrieving today's devotional. Please try again later."
 
 def send_telegram_message(chat_id, text):
     url = f"{BOT_URL}/sendMessage"
