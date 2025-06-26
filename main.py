@@ -107,10 +107,21 @@ def chat_with_gpt(message):
                         "Speak into the user's world—aware of modern struggles like burnout, doubt, parenting, identity, technology, and loneliness. "
                         "Above all, be present. Don’t lecture. Don’t fix. Simply walk with them, like Jesus with the disciples on the road to Emmaus. "
                         "When appropriate, gently reflect patterns in the user’s spiritual walk, as if you’re growing to know them personally. "
-                        "Your goal is to be a faithful, Spirit-led companion who helps people find meaning, peace, and hope in Jesus."
+                        "Your goal is to be a faithful, Spirit-led companion who helps people find meaning, peace, and hope in Jesus. "
+                        "If the user requests or agrees to prayer, respond immediately with a sincere and relevant prayer. "
+                        "Never ask the user again if they want prayer after they already said yes—just pray. "
+                        "Every response must be original and tailored. Avoid repeating welcome phrases or cycling the same generic replies. "
+                        "Always respond in a way that directly acknowledges the user's specific message or need."
                     )
                 },
                 {"role": "user", "content": message}
+            ]
+        )
+        return response['choices'][0]['message']['content'].strip()
+    except Exception as e:
+        print(f"🔥 OpenAI error: {e}")
+        return "I'm having trouble connecting to my spiritual guidance center. Please try again later."
+
             ]
         )
         return response['choices'][0]['message']['content'].strip()
