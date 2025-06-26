@@ -9,6 +9,7 @@ app = Flask(__name__)
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
+user_journals = {}
 
 
 @app.route('/')
@@ -22,7 +23,22 @@ def webhook():
     if 'message' in data:
         chat_id = data['message']['chat']['id']
         user_input = data['message'].get('text', '')
-        reply = chat_with_gpt(user_input)
+        if user_input.lower().startswith('/journal'):
+    entry = user_input[8:].strip()
+    if entry:
+        user_journals.setdefault(chat_id, []).append(entry)
+        reply = "📝 Journal entry saved."
+    else:
+        reply = "Please write something after /journal to save it."
+elif user_input.lower() == '/myjournal':
+    entries = user_journals.get(chat_id, [])
+    if not entries:
+        reply = "📭 No journal entries yet."
+    else:
+        reply = "📖 Your journal entries:\n" + "\n".join(f"- {e}" for e in entries[-5:])
+else:
+    reply = chat_with_gpt(user_input)
+
         send_telegram_message(chat_id, reply)
     return 'OK', 200
 
