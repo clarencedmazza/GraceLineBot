@@ -122,13 +122,6 @@ def chat_with_gpt(message):
         print(f"🔥 OpenAI error: {e}")
         return "I'm having trouble connecting to my spiritual guidance center. Please try again later."
 
-            ]
-        )
-        return response['choices'][0]['message']['content'].strip()
-    except Exception as e:
-        print(f"🔥 OpenAI error: {e}")
-        return "I'm having trouble connecting to my spiritual guidance center. Please try again later."
-
 def generate_devotional():
     try:
         prompt = (
