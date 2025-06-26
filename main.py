@@ -28,6 +28,13 @@ def webhook():
         chat_id = data['message']['chat']['id']
         user_input = data['message'].get('text', '').strip()
 
+        # Check for mental health crisis first
+        crisis_reply = check_for_crisis(user_input)
+        if crisis_reply:
+            send_telegram_message(chat_id, crisis_reply)
+            return 'OK', 200
+
+        # Handle commands and fallback to GPT
         reply = handle_custom_commands(chat_id, user_input)
         send_telegram_message(chat_id, reply)
 
@@ -77,9 +84,9 @@ def handle_custom_commands(chat_id, user_input):
         return "There are no prayers to delete."
 
     elif lower_input == '/devo':
-        return get_daily_devotional()
+        return generate_devotional()
 
-    # Fallback to GPT for anything else
+    # Fallback to GPT for conversation
     return chat_with_gpt(user_input)
 
 def chat_with_gpt(message):
@@ -111,24 +118,51 @@ def chat_with_gpt(message):
         print(f"🔥 OpenAI error: {e}")
         return "I'm having trouble connecting to my spiritual guidance center. Please try again later."
 
-def get_daily_devotional():
+def generate_devotional():
     try:
+        prompt = (
+            "Write a short, encouraging daily Christian devotional (under 120 words) "
+            "based on a verse from the Gospels. Speak in a personal, modern tone, as if to a friend. "
+            "Include:\n"
+            "- A verse (NIV)\n"
+            "- A brief reflection\n"
+            "- One sentence prayer"
+        )
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=[{
-                "role": "system",
-                "content": (
-                    "You are a Spirit-led Christian devotional writer. Create a fresh, daily devotional that sounds personal, honest, and rooted in Scripture. "
-                    "Choose a single verse from the Bible (ESV). Begin with a short, engaging title. Then list the verse. Follow with a reflection that's two short paragraphs—"
-                    "simple, clear, and heartfelt. End with a two-line prayer. Aim to encourage people who are weary, doubtful, anxious, or hungry for God. "
-                    "Avoid lofty language or long sermons—write like someone walking with a friend. Let grace, truth, and hope come through in every word."
-                )
-            }]
+            messages=[{"role": "user", "content": prompt}]
         )
         return response['choices'][0]['message']['content'].strip()
     except Exception as e:
         print(f"🔥 Devotional error: {e}")
-        return "I'm having trouble retrieving today's devotional. Please try again later."
+        return "Sorry, I wasn't able to generate today's devotional. Please try again soon."
+
+def check_for_crisis(message):
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a crisis safety classifier in a Christian mental health bot. "
+                        "Your only job is to evaluate if this message contains signs of serious emotional or mental distress—"
+                        "including suicidal thoughts, self-harm, abuse, or severe hopelessness.\n\n"
+                        "If yes, respond ONLY with:\n"
+                        "CRISIS: I'm really sorry you're feeling this way. You're not alone. "
+                        "Please call or text 988 to speak with someone right away.\n\n"
+                        "If safe, respond only with: SAFE\n\n"
+                        "Do not explain. Do not analyze. Only classify."
+                    )
+                },
+                {"role": "user", "content": message}
+            ]
+        )
+        output = response['choices'][0]['message']['content'].strip()
+        return output if output.startswith("CRISIS:") else None
+    except Exception as e:
+        print(f"🔥 Crisis detection error: {e}")
+        return None
 
 def send_telegram_message(chat_id, text):
     url = f"{BOT_URL}/sendMessage"
@@ -137,6 +171,7 @@ def send_telegram_message(chat_id, text):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
 
 
 
