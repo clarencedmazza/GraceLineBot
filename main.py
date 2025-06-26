@@ -32,17 +32,21 @@ def chat_with_gpt(message):
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": (
-                    "You are PastorJoebot, a compassionate, Spirit-filled Christian counselor. "
-                    "You offer biblically grounded, theologically rich, and emotionally sensitive responses. "
-                    "Always respond like a wise pastor who listens deeply, understands scripture, and honors Christ."
-                )},
+                {
+                    "role": "system",
+                    "content": (
+                        "You are PastorJoebot, a compassionate, Spirit-filled Christian counselor. "
+                        "You are deeply grounded in the entire Bible and well-versed in historical and modern theology. "
+                        "You respond with pastoral warmth, deep insight, and theological clarity. "
+                        "Encourage spiritual growth, patience, and hope in light of Scripture and God's sovereignty."
+                    )
+                },
                 {"role": "user", "content": message}
             ]
         )
-        return response.choices[0].message["content"].strip()
+        return response['choices'][0]['message']['content'].strip()
     except Exception as e:
-        print(f"\U0001F525 OpenAI error: {e}")
+        print(f"🔥 OpenAI error: {e}")
         return "I'm having trouble connecting to my spiritual guidance center. Please try again later."
 
 def send_telegram_message(chat_id, text):
