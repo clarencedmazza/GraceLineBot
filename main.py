@@ -76,7 +76,7 @@ def handle_custom_commands(chat_id, user_input):
             return f"🗑️ Removed your last prayer:\n\n{removed}"
         return "There are no prayers to delete."
 
-    elif lower_input == '/dailydevotional':
+    elif lower_input == '/devo':
         return get_daily_devotional()
 
     # Fallback to GPT for anything else
