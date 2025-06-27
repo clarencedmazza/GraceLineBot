@@ -69,7 +69,7 @@ def handle_custom_commands(chat_id, user_input):
         if prayer:
             prayer_text = f"\ud83d\ude4f {current_time()} - {prayer}"
             user_prayers.setdefault(chat_id, []).append(prayer_text)
-            return "I've recorded your prayer. The Lord is near to the brokenhearted."
+            return "I've recorded your prayer. The Lord is near."
         return "\ud83d\udd4a\ufe0f To send a prayer, type: `/pray Lord, I need help with...`"
 
     elif lower_input == '/myprayers':
@@ -107,20 +107,20 @@ def chat_with_gpt(message):
                 {
                     "role": "system",
                     "content": (
-                        "You are PastorJoebot, a modern voice echoing the Spirit of Christ as revealed in the Gospels. "
+                        "You are PastorJoebot, a modern voice drawing from the Spirit of God as revealed in the full council of the bible. "
                         "You speak like a compassionate, wise friend—gentle, honest, and deeply rooted in Jesus’ teachings. "
-                        "Let the words of Christ in the New Testament shape your tone, attitude, and heart. "
+                        "Let the person of Christ in the New Testament shape your tone, attitude, and heart. "
                         "Avoid sounding robotic or overly formal—speak plainly, relationally, and with spiritual depth. "
                         "When users share, listen first. Affirm what is true. Encourage honest prayer and spiritual curiosity. "
                         "When helpful, reflect relevant scriptures, simple prayers, or open-ended questions. "
                         "You may offer short blessings, journaling prompts, or wisdom summaries, but only if they serve the moment. "
                         "Speak into the user's world—aware of modern struggles like burnout, doubt, parenting, identity, technology, and loneliness. "
                         "Above all, be present. Don’t lecture. Don’t fix. Simply walk with them, like Jesus with the disciples on the road to Emmaus. "
-                        "When a user seeks prayer, never say you are praying for them. Instead, guide them in prayer using language like, "
+                        "When a user seeks prayer, never pray for them or with them. Instead, guide them in prayer using language like, "
                         "'Here’s something you might pray' or 'Let’s bring this to God together.' Be a companion in prayer—not an intercessor. "
                         "When appropriate, gently reflect patterns in the user’s spiritual walk, as if you’re growing to know them personally. "
                         "Your goal is to be a faithful, Spirit-led companion who helps people find meaning, peace, and hope in Jesus. "
-                        "Every response must be original and tailored. Avoid repeating welcome phrases or cycling the same generic replies. "
+                        "Every response must be original and tailored. Avoid repeating phrases or cycling the same generic replies. "
                         "Always respond in a way that directly acknowledges the user's specific message or need."
                     )
                 },
@@ -135,10 +135,10 @@ def chat_with_gpt(message):
 def generate_devotional(chat_id=None):
     try:
         prompt = (
-            "Write a short, encouraging daily Christian devotional (under 120 words) "
-            "based on a verse from the Gospels. Speak in a personal, modern tone, as if to a friend. "
+            "Write a short, encouraging, and theologically daily Christian devotional (under 200 words) "
+            "based on a verse from the bible. Speak in a personal, modern tone, as if to a friend. "
             "Include:\n"
-            "- A verse (NIV)\n"
+            "- A verse (ESV)\n"
             "- A brief reflection\n"
             "- One sentence prayer"
         )
@@ -159,7 +159,7 @@ def generate_devotional(chat_id=None):
 def generate_additional_verse():
     try:
         prompt = (
-            "Share one encouraging Bible verse from the Gospels (NIV), followed by a short, uplifting reflection (1–2 sentences). "
+            "Share one encouraging Bible verse (ESV), followed by a short, uplifting reflection (1–2 sentences). "
             "Speak in a warm, personal tone, like a friend walking with someone in faith."
         )
         response = openai.ChatCompletion.create(
@@ -175,7 +175,7 @@ def generate_meditation_from_devo(devo_text):
     try:
         prompt = (
             f"Based on the following devotional, write a short meditation question or spiritual reflection prompt "
-            f"to help someone go deeper with God. Be gentle, honest, and personal.\n\n{devo_text}"
+            f"to help someone go deeper with God into the content of the devotional. Be gentle, honest, and personal.\n\n{devo_text}"
         )
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
