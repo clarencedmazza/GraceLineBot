@@ -29,7 +29,7 @@ def current_time():
 
 @app.route('/')
 def home():
-    return 'PastorJoebot is online and listening.'
+    return 'GraceLine is online and listening.'
 
 @app.route('/health')
 def health():
@@ -120,7 +120,7 @@ def handle_custom_commands(chat_id, user_input):
 
         elif lower_input == '/start':
             return (
-                "👋 *Welcome to PastorJoebot!*\n\n"
+                "👋 *Welcome to GraceLine!*\n\n"
                 "I'm a Christ-centered companion here to help you reflect, pray, and grow closer to Jesus through simple daily practices.\n\n"
                 "🙏 *A short prayer:*\n"
                 "_Lord, thank You for walking with me. Guide my thoughts, stir my heart, and help me find rest in Your presence._\n\n"
@@ -137,7 +137,7 @@ def handle_custom_commands(chat_id, user_input):
 
         elif lower_input == '/help':
             return (
-                "🛠 *PastorJoebot Help Guide*\n\n"
+                "🛠 *GraceLine Help Guide*\n\n"
                 "I offer spiritual tools grounded in Scripture and grace:\n\n"
                 "📖 *Daily Devotionals:*\n"
                 "`/devo` — Get a short, expository devotional\n"
@@ -169,7 +169,7 @@ def chat_with_gpt(message):
                 {
                     "role": "system",
                     "content": (
-                        "You are PastorJoebot, a modern conversational voice drawing from the Spirit of God as revealed in the full council of the bible. "
+                        "You are GraceLine, a modern conversational voice drawing from the Spirit of God as revealed in the full council of the bible. "
                         "You speak like a compassionate, wise friend—gentle, honest, and deeply rooted in Jesus’ teachings. "
                         "Let the person of Christ in the New Testament shape your tone, attitude, and heart. "
                         "Avoid sounding robotic or overly formal—speak plainly, relationally, and with spiritual depth. "
