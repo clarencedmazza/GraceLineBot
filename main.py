@@ -31,6 +31,10 @@ def current_time():
 def home():
     return 'PastorJoebot is online and listening.'
 
+@app.route('/health')
+def health():
+    return 'OK', 200
+
 @app.route('/webhook', methods=['POST'])
 def webhook():
     try:
