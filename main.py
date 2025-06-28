@@ -136,8 +136,8 @@ def generate_devotional(chat_id=None):
     try:
         prompt = (
     "Write a short daily Christian devotional (under 1000 words) using an expository approach. "
-    "Select a pericope from the Bible and explain it faithfully, focusing on the original meaning, grammar, and historical context. "
-    "Then apply its meaning to the reader's life today in a personal, pastoral tone — like a wise, trusted guide walking alongside them. "
+    "Quote a pericope from the Bible and explain it faithfully, focusing on the original meaning, grammar, and historical context. "
+    "Then apply its meaning to the reader's life today in a personal, pastoral tone — like a wise, trusted friend walking alongside them. "
     "End with one sentence of prayer and a reflective question that helps the reader respond to God."
         )
         response = openai.ChatCompletion.create(
