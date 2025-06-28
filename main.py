@@ -118,6 +118,43 @@ def handle_custom_commands(chat_id, user_input):
                 return "🕊️ No devotional found yet. Start with `/devo` first."
             return generate_meditation_from_devo(last_devo)
 
+        elif lower_input == '/start':
+            return (
+                "👋 *Welcome to PastorJoebot!*\n\n"
+                "I'm a Christ-centered companion here to help you reflect, pray, and grow closer to Jesus through simple daily practices.\n\n"
+                "🙏 *A short prayer:*\n"
+                "_Lord, thank You for walking with me. Guide my thoughts, stir my heart, and help me find rest in Your presence._\n\n"
+                "*Here are a few ways you can use me:*\n"
+                "• `/journal I’m feeling...` — to write a personal journal\n"
+                "• `/myjournal` — to see your past journal entries\n"
+                "• `/pray Lord, help me...` — to record a prayer\n"
+                "• `/myprayers` — to review past prayers\n"
+                "• `/devo` — to receive a fresh, Scripture-based devotional\n"
+                "• `/meditate` — to reflect on your latest devotional\n"
+                "• `/help` — for more guidance\n\n"
+                "✝️ I’m here to walk beside you — not to fix, but to listen, reflect, and remind you that God is near."
+            )
+
+        elif lower_input == '/help':
+            return (
+                "🛠 *PastorJoebot Help Guide*\n\n"
+                "I offer spiritual tools grounded in Scripture and grace:\n\n"
+                "📖 *Daily Devotionals:*\n"
+                "`/devo` — Get a short, expository devotional\n"
+                "`/meditate` — Reflect deeper on your last devo\n\n"
+                "✍️ *Journaling:*\n"
+                "`/journal Today I...` — Write a journal entry\n"
+                "`/myjournal` — View your recent entries\n"
+                "`/deletejournal` — Delete your latest entry\n\n"
+                "🙏 *Prayer:*\n"
+                "`/pray God, I...` — Record a private prayer\n"
+                "`/myprayers` — Review recent prayers\n"
+                "`/deleteprayer` — Remove your last prayer\n\n"
+                "💬 You can also just talk to me — I’ll listen and respond like a wise, caring friend in Christ.\n\n"
+                "If you're ever in deep distress, I’ll gently point you toward help. You're not alone."
+            )
+
+        # Fallback to GPT
         return chat_with_gpt(user_input)
 
     except Exception as e:
