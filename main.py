@@ -273,6 +273,31 @@ def check_for_crisis(message):
         logging.exception("OpenAI error in check_for_crisis")
         return None
 
+def send_welcome_keyboard(chat_id):
+    keyboard = {
+        "keyboard": [
+            ["📝 Journal", "🙏 Prayer"],
+            ["📖 Devotional", "🧘 Meditate"],
+            ["❓ Help"]
+        ],
+        "resize_keyboard": True,
+        "one_time_keyboard": False
+    }
+
+    payload = {
+        "chat_id": chat_id,
+        "text": (
+            "GraceLine is here to walk with you. Choose one of the options below to begin.\n\n"
+            "You can always type a command too, like /pray or /devo."
+        ),
+        "reply_markup": keyboard
+    }
+
+    try:
+        requests.post(f"{BOT_URL}/sendMessage", json=payload)
+    except Exception as e:
+        logging.exception(f"Error sending welcome keyboard to {chat_id}")
+
 def send_telegram_message(chat_id, text):
     url = f"{BOT_URL}/sendMessage"
     payload = {"chat_id": chat_id, "text": text}
