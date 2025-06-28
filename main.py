@@ -102,7 +102,7 @@ def handle_custom_commands(chat_id, user_input):
 def chat_with_gpt(message):
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-4-turbo",
             messages=[
                 {
                     "role": "system",
@@ -141,7 +141,7 @@ def generate_devotional(chat_id=None):
     "End with one sentence of prayer and a reflective question that helps the reader respond to God."
         )
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}]
         )
         content = response['choices'][0]['message']['content'].strip()
@@ -187,7 +187,7 @@ def generate_meditation_from_devo(devo_text):
 def check_for_crisis(message):
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=[
                 {
                     "role": "system",
