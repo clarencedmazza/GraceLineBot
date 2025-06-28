@@ -102,7 +102,7 @@ def handle_custom_commands(chat_id, user_input):
 def chat_with_gpt(message):
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[
                 {
                     "role": "system",
