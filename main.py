@@ -4,6 +4,13 @@ import requests
 import openai
 from datetime import datetime
 import redis
+import logging
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(asctime)s] %(levelname)s: %(message)s'
+)
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -15,7 +22,7 @@ BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 # Connect to Redis
 r = redis.from_url(os.getenv("REDIS_URL"))
 
-user_devotionals = {}  # Still in memory for now — can be upgraded later
+user_devotionals = {}  # Still in memory for now 
 
 def current_time():
     return datetime.now().strftime("%b %d, %Y %I:%M %p")
@@ -26,80 +33,89 @@ def home():
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    data = request.get_json()
-    if 'message' in data:
-        chat_id = data['message']['chat']['id']
-        user_input = data['message'].get('text', '').strip()
+    try:
+        data = request.get_json()
+        if 'message' in data:
+            chat_id = data['message']['chat']['id']
+            user_input = data['message'].get('text', '').strip()
+            logging.info(f"Message from {chat_id}: {user_input[:30]}...")
 
-        # Check for mental health crisis first
-        crisis_reply = check_for_crisis(user_input)
-        if crisis_reply:
-            send_telegram_message(chat_id, crisis_reply)
-            return 'OK', 200
+            crisis_reply = check_for_crisis(user_input)
+            if crisis_reply:
+                logging.warning(f"Crisis response triggered for {chat_id}")
+                send_telegram_message(chat_id, crisis_reply)
+                return 'OK', 200
 
-        # Handle commands and fallback to GPT
-        reply = handle_custom_commands(chat_id, user_input)
-        send_telegram_message(chat_id, reply)
+            reply = handle_custom_commands(chat_id, user_input)
+            send_telegram_message(chat_id, reply)
 
-    return 'OK', 200
+        return 'OK', 200
+
+    except Exception as e:
+        logging.exception("Unhandled error in /webhook")
+        return 'Internal Server Error', 500
 
 def handle_custom_commands(chat_id, user_input):
     lower_input = user_input.lower()
 
-    if lower_input.startswith('/journal'):
-        entry = user_input[8:].strip()
-        if entry:
-            entry_text = f"📝 {current_time()} - {entry}"
-            r.lpush(f"journal:{chat_id}", entry_text)
-            return "Your journal entry was saved. Thank you for reflecting."
-        return "✍️ To write a journal entry, type: `/journal Today I felt...`"
+    try:
+        if lower_input.startswith('/journal'):
+            entry = user_input[8:].strip()
+            if entry:
+                entry_text = f"📝 {current_time()} - {entry}"
+                r.lpush(f"journal:{chat_id}", entry_text)
+                return "Your journal entry was saved. Thank you for reflecting."
+            return "✍️ To write a journal entry, type: `/journal Today I felt...`"
 
-    elif lower_input == '/myjournal':
-        entries = [e.decode('utf-8') for e in r.lrange(f"journal:{chat_id}", 0, 4)]
-        if not entries:
-            return "📬 No journal entries yet. Try `/journal` to start one."
-        return "📖 Your last journal entries:\n\n" + "\n".join(entries)
+        elif lower_input == '/myjournal':
+            entries = [e.decode('utf-8') for e in r.lrange(f"journal:{chat_id}", 0, 4)]
+            if not entries:
+                return "📬 No journal entries yet. Try `/journal` to start one."
+            return "📖 Your last journal entries:\n\n" + "\n".join(entries)
 
-    elif lower_input == '/deletejournal':
-        removed = r.lpop(f"journal:{chat_id}")
-        if removed:
-            return f"🗑️ Removed your last journal entry:\n\n{removed.decode('utf-8')}"
-        return "There are no journal entries to delete."
+        elif lower_input == '/deletejournal':
+            removed = r.lpop(f"journal:{chat_id}")
+            if removed:
+                return f"🗑️ Removed your last journal entry:\n\n{removed.decode('utf-8')}"
+            return "There are no journal entries to delete."
 
-    elif lower_input.startswith('/pray'):
-        prayer = user_input[5:].strip()
-        if prayer:
-            prayer_text = f"🙏 {current_time()} - {prayer}"
-            r.lpush(f"prayer:{chat_id}", prayer_text)
-            return "I've recorded your prayer. The Lord is near."
-        return "🔊 To send a prayer, type: `/pray Lord, I need help with...`"
+        elif lower_input.startswith('/pray'):
+            prayer = user_input[5:].strip()
+            if prayer:
+                prayer_text = f"🙏 {current_time()} - {prayer}"
+                r.lpush(f"prayer:{chat_id}", prayer_text)
+                return "I've recorded your prayer. The Lord is near."
+            return "🕊️ To send a prayer, type: `/pray Lord, I need help with...`"
 
-    elif lower_input == '/myprayers':
-        prayers = [p.decode('utf-8') for p in r.lrange(f"prayer:{chat_id}", 0, 4)]
-        if not prayers:
-            return "📬 No prayer requests yet. Use `/pray` to submit one."
-        return "🛠️ Your recent prayers:\n\n" + "\n".join(prayers)
+        elif lower_input == '/myprayers':
+            prayers = [p.decode('utf-8') for p in r.lrange(f"prayer:{chat_id}", 0, 4)]
+            if not prayers:
+                return "📬 No prayer requests yet. Use `/pray` to submit one."
+            return "🔧 Your recent prayers:\n\n" + "\n".join(prayers)
 
-    elif lower_input == '/deleteprayer':
-        removed = r.lpop(f"prayer:{chat_id}")
-        if removed:
-            return f"🗑️ Removed your last prayer:\n\n{removed.decode('utf-8')}"
-        return "There are no prayers to delete."
+        elif lower_input == '/deleteprayer':
+            removed = r.lpop(f"prayer:{chat_id}")
+            if removed:
+                return f"🗑️ Removed your last prayer:\n\n{removed.decode('utf-8')}"
+            return "There are no prayers to delete."
 
-    elif lower_input == '/devo':
-        return generate_devotional(chat_id)
+        elif lower_input == '/devo':
+            return generate_devotional(chat_id)
 
-    elif lower_input in ['another verse', 'more scripture', 'share another verse', 'can i hear another verse']:
-        return generate_additional_verse()
+        elif lower_input in ['another verse', 'more scripture', 'share another verse', 'can i hear another verse']:
+            return generate_additional_verse()
 
-    elif lower_input == '/meditate':
-        last_devo = user_devotionals.get(chat_id)
-        if not last_devo:
-            return "🔊 No devotional found yet. Start with `/devo` first."
-        return generate_meditation_from_devo(last_devo)
+        elif lower_input == '/meditate':
+            last_devo = user_devotionals.get(chat_id)
+            if not last_devo:
+                return "🕊️ No devotional found yet. Start with `/devo` first."
+            return generate_meditation_from_devo(last_devo)
 
-    # Fallback to GPT for conversation
-    return chat_with_gpt(user_input)
+        return chat_with_gpt(user_input)
+
+    except Exception as e:
+        logging.exception(f"Command handling error for user {chat_id}")
+        return "Something went wrong while processing your command. Please try again later."
 
 def chat_with_gpt(message):
     try:
@@ -131,7 +147,7 @@ def chat_with_gpt(message):
         )
         return response['choices'][0]['message']['content'].strip()
     except Exception as e:
-        print(f"🔥 OpenAI error: {e}")
+        logging.exception("OpenAI error in chat_with_gpt")
         return "I'm having trouble connecting to my spiritual guidance center. Please try again later."
 
 def generate_devotional(chat_id=None):
@@ -153,7 +169,7 @@ def generate_devotional(chat_id=None):
 
         return content
     except Exception as e:
-        print(f"🔥 Devotional error: {e}")
+        logging.exception("OpenAI error in generate_devotional")
         return "Sorry, I wasn't able to generate today's devotional. Please try again soon."
 
 def generate_additional_verse():
@@ -168,7 +184,7 @@ def generate_additional_verse():
         )
         return response['choices'][0]['message']['content'].strip()
     except Exception as e:
-        print(f"🔥 Additional verse error: {e}")
+        logging.exception("OpenAI error in generate_additional_verse")
         return "Sorry, I wasn’t able to share a verse right now. Try again in a moment."
 
 def generate_meditation_from_devo(devo_text):
@@ -181,9 +197,9 @@ def generate_meditation_from_devo(devo_text):
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
-        return "🧎‍♂️ Reflect on this:\n" + response['choices'][0]['message']['content'].strip()
+        return "🧘‍♂️ Reflect on this:\n" + response['choices'][0]['message']['content'].strip()
     except Exception as e:
-        print(f"🔥 Meditation error: {e}")
+        logging.exception("OpenAI error in generate_meditation_from_devo")
         return "Sorry, I couldn’t generate a meditation right now."
 
 def check_for_crisis(message):
@@ -210,7 +226,7 @@ def check_for_crisis(message):
         output = response['choices'][0]['message']['content'].strip()
         return output if output.startswith("CRISIS:") else None
     except Exception as e:
-        print(f"🔥 Crisis detection error: {e}")
+        logging.exception("OpenAI error in check_for_crisis")
         return None
 
 def send_telegram_message(chat_id, text):
@@ -219,7 +235,7 @@ def send_telegram_message(chat_id, text):
     try:
         requests.post(url, json=payload)
     except Exception as e:
-        print(f"🔥 Telegram message error: {e}")
+        logging.exception(f"Telegram message error for {chat_id}")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
