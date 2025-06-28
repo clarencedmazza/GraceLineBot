@@ -35,24 +35,27 @@ def home():
 def webhook():
     try:
         data = request.get_json()
+
         if 'message' in data:
             chat_id = data['message']['chat']['id']
             user_input = data['message'].get('text', '').strip()
             logging.info(f"Message from {chat_id}: {user_input[:30]}...")
 
+            # 1. Crisis check
             crisis_reply = check_for_crisis(user_input)
             if crisis_reply:
                 logging.warning(f"Crisis response triggered for {chat_id}")
                 send_telegram_message(chat_id, crisis_reply)
                 return 'OK', 200
 
+            # 2. Command handling or GPT fallback
             reply = handle_custom_commands(chat_id, user_input)
             send_telegram_message(chat_id, reply)
 
         return 'OK', 200
 
     except Exception as e:
-        logging.exception("Unhandled error in /webhook")
+        logging.exception("🔥 Unhandled error in /webhook")
         return 'Internal Server Error', 500
 
 def handle_custom_commands(chat_id, user_input):
