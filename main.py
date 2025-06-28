@@ -141,7 +141,7 @@ def generate_devotional(chat_id=None):
     "End with one sentence of prayer and a reflective question that helps the reader respond to God."
         )
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
         content = response['choices'][0]['message']['content'].strip()
@@ -161,7 +161,7 @@ def generate_additional_verse():
             "Speak in a warm, personal tone, like a friend walking with someone in faith."
         )
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
         return response['choices'][0]['message']['content'].strip()
@@ -176,7 +176,7 @@ def generate_meditation_from_devo(devo_text):
             f"to help someone go deeper with God into the content of the devotional. Be gentle, honest, and personal.\n\n{devo_text}"
         )
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
         return "\ud83e\uddd8\u200d\u2642\ufe0f Reflect on this:\n" + response['choices'][0]['message']['content'].strip()
@@ -187,7 +187,7 @@ def generate_meditation_from_devo(devo_text):
 def check_for_crisis(message):
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[
                 {
                     "role": "system",
