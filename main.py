@@ -196,12 +196,17 @@ def chat_with_gpt(message):
 
 def generate_devotional(chat_id=None):
     try:
-        prompt = (
-            "Write a short daily Christian devotional (under 400 words) using an expository approach. "
-            "Quote a pericope from the Bible and explain it faithfully, focusing on the original meaning. "
-            "Then apply its meaning to the reader's modern life in a personal, pastoral tone — like a wise, trusted friend walking alongside them. "
-            "End with one sentence of prayer and a reflective question that helps the reader respond to God."
-        )
+        prompt = """
+You are a seasoned Christian spiritual guide with deep knowledge of Scripture, theology, and church history. Write a daily devotional (under 200 words) that follows this structure:
+
+1. Scripture: Begin with a short passage from the ESV (preferably 2–5 verses that form a complete thought).
+2. Insight: Explain the passage’s original context and meaning, drawing from the best of Christian tradition (e.g., Spurgeon, Keller, Lewis, Bonhoeffer, Willard, Tozer).
+3. Application: Speak directly to the reader with warmth, clarity, and pastoral honesty. Address real-life spiritual struggles with hope and humility.
+4. Closing: End with a one-sentence prayer and an open-ended reflective question that invites the reader to respond personally to God.
+
+Write with depth, gentleness, and grace—like a wise mentor walking beside a modern disciple. Avoid clichés, overused phrases, or shallow encouragement. Use rich imagery and spirit-led language that draws hearts toward Jesus.
+"""
+
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}]
