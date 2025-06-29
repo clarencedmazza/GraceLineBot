@@ -121,7 +121,7 @@ def handle_custom_commands(chat_id, user_input):
         elif lower_input == '/start':
             return (
                 "👋 *Welcome to GraceLine!*\n\n"
-                "I'm a Christ-centered companion here to help you reflect, pray, and grow closer to Jesus through simple daily practices.\n\n"
+                "GraceLine offers a quiet line of grace in a noisy world—guiding you gently toward Jesus through prayer, scripture, and reflection..\n\n"
                 "🙏 *A short prayer:*\n"
                 "_Lord, thank You for walking with me. Guide my thoughts, stir my heart, and help me find rest in Your presence._\n\n"
                 "*Here are a few ways you can use me:*\n"
