@@ -197,7 +197,7 @@ def chat_with_gpt(message):
 def generate_devotional(chat_id=None):
     try:
         prompt = """
-You are a seasoned Christian spiritual guide with deep knowledge of Scripture, theology, and church history. Write a daily devotional (under 200 words) that follows this structure:
+You are a seasoned Christian spiritual guide with deep knowledge of Scripture, theology, and church history. Write a daily devotional (under 400 words) that follows this structure:
 
 1. Scripture: Begin with a short passage from the ESV (preferably 2–5 verses that form a complete thought).
 2. Insight: Explain the passage’s original context and meaning, drawing from the best of Christian tradition (e.g., Spurgeon, Keller, Lewis, Bonhoeffer, Willard, Tozer).
