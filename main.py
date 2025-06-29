@@ -138,7 +138,7 @@ def handle_custom_commands(chat_id, user_input):
         elif lower_input == '/help':
             return (
                 "🛠 *GraceLine Help Guide*\n\n"
-                "I offer spiritual tools grounded in Scripture and grace:\n\n"
+                "Im here to walk with you in your journey with God-through daily devotionals, journaling, and prayer:\n\n"
                 "📖 *Daily Devotionals:*\n"
                 "`/devo` — Get a short, expository devotional\n"
                 "`/meditate` — Reflect deeper on your last devo\n\n"
