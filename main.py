@@ -204,32 +204,86 @@ Always respond in a way that directly acknowledges the user’s unique message, 
         logging.exception("OpenAI error in chat_with_gpt")
         return "I'm having trouble connecting to my spiritual guidance center. Please try again later."
 
+import re
+import random
+from datetime import datetime
+
+def extract_verse_reference(text):
+    """
+    Attempts to extract the first recognizable Bible verse reference from a string.
+    Supports formats like:
+    - John 3:16
+    - Philippians 4:6–7
+    - Romans 8:28–30
+    - 1 John 1:9
+    """
+    pattern = r"\b(?:[1-3]\s)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s\d+:\d+(?:[-–]\d+)?\b"
+    match = re.search(pattern, text)
+    return match.group(0).strip() if match else None
+
+def is_verse_used_this_year(verse_ref):
+    year_key = f"used_devo_verses:{datetime.now().year}"
+    return r.sismember(year_key, verse_ref)
+
+def mark_verse_as_used(verse_ref):
+    year_key = f"used_devo_verses:{datetime.now().year}"
+    r.sadd(year_key, verse_ref)
+
 def generate_devotional(chat_id=None):
-    try:
-        prompt = """
-You are a seasoned Christian spiritual guide with deep knowledge of Scripture, theology, and church history. Write a daily devotional (under 400 words) that follows this structure:
+    prompt = """
+prompt = """
+You are a seasoned Christian spiritual guide and writer. Craft a daily devotional (max 400 words) that is biblical, wise, and deeply personal.
 
-1. Scripture: Begin with a short passage from the ESV (preferably 2–5 verses that form a complete thought).
-2. Insight: Explain the passage’s original context and meaning, drawing from the best of Christian tradition (e.g., Spurgeon, Keller, Lewis, Bonhoeffer, Willard, Tozer).
-3. Application: Speak directly to the reader with warmth, clarity, and pastoral honesty. Address real-life spiritual struggles with hope and humility.
-4. Closing: End with a one-sentence prayer and an open-ended reflective question that invites the reader to respond personally to God.
+Follow this structure:
 
-Write with depth, gentleness, and grace—like a wise mentor walking beside a modern disciple. Avoid clichés, overused phrases, or shallow encouragement. Use rich imagery and spirit-led language that draws hearts toward Jesus.
+1. **Scripture (ESV)**  
+   Start with a short, complete ESV passage (2–5 verses) that is spiritually rich. Include the full reference clearly (e.g., 'Romans 8:38–39'). Avoid verses that are overused (like John 3:16 or Jeremiah 29:11).
+
+2. **Insight**  
+   Briefly explain the verse in its biblical and historical context. Draw from trusted Christian voices when helpful (e.g., Spurgeon, Tozer, Bonhoeffer, Keller, Lewis, etc.). Keep it accessible and meaningful.
+
+3. **Application**  
+   Speak with empathy and clarity to modern spiritual struggles like anxiety, pride, shame, comparison, distraction, or doubt. Help the reader see how the verse calls them toward Christlikeness today.
+
+4. **Closing**  
+   End with a one-sentence prayer that flows from the message, followed by a short reflection question to draw the reader into personal response.
+
+Guidelines:
+- Write like a compassionate mentor or pastor speaking directly to one reader.
+- Avoid religious clichés, empty encouragement, or formal theological jargon.
+- Prioritize spiritual depth, emotional honesty, and Christ-centered hope.
+
+Begin now.
+"""
+Avoid using verses that are frequently quoted (like John 3:16 or Jeremiah 29:11). Choose something thoughtful and fresh.
 """
 
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        content = response['choices'][0]['message']['content'].strip()
+    max_attempts = 5
+    for attempt in range(max_attempts):
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-4-turbo",
+                messages=[{"role": "user", "content": prompt}]
+            )
+            content = response['choices'][0]['message']['content'].strip()
+            verse_ref = extract_verse_reference(content)
 
-        if chat_id:
-            user_devotionals[chat_id] = content
+            logging.info(f"[DEVO] Attempt {attempt + 1} - Verse found: {verse_ref or 'None'}")
 
-        return content
-    except Exception as e:
-        logging.exception("OpenAI error in generate_devotional")
-        return "Sorry, I wasn't able to generate today's devotional. Please try again soon."
+            if verse_ref and not is_verse_used_this_year(verse_ref):
+                mark_verse_as_used(verse_ref)
+                if chat_id:
+                    user_devotionals[chat_id] = content
+                return content
+
+        except Exception as e:
+            logging.exception("Error generating or checking devotional verse")
+
+    return (
+        "🕊️ I wasn’t able to generate a fresh devotional today without repeating a verse. "
+        "Please try again tomorrow."
+    )
+
 
 def generate_additional_verse():
     try:
