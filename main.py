@@ -231,13 +231,12 @@ def mark_verse_as_used(verse_ref):
 
 def generate_devotional(chat_id=None):
     prompt = """
-prompt = """
 You are a seasoned Christian spiritual guide and writer. Craft a daily devotional (max 400 words) that is biblical, wise, and deeply personal.
 
 Follow this structure:
 
 1. **Scripture (ESV)**  
-   Start with a short, complete ESV passage (2–5 verses) that is spiritually rich. Include the full reference clearly (e.g., 'Romans 8:38–39'). Avoid verses that are overused (like John 3:16 or Jeremiah 29:11).
+   Start with a short, complete ESV passage (2-5 verses) that is spiritually rich. Include the full reference clearly (e.g., 'Romans 8:38-39'). Avoid verses that are overused (like John 3:16 or Jeremiah 29:11).
 
 2. **Insight**  
    Briefly explain the verse in its biblical and historical context. Draw from trusted Christian voices when helpful (e.g., Spurgeon, Tozer, Bonhoeffer, Keller, Lewis, etc.). Keep it accessible and meaningful.
@@ -250,8 +249,11 @@ Follow this structure:
 
 Guidelines:
 - Write like a compassionate mentor or pastor speaking directly to one reader.
-- Avoid religious clichés, empty encouragement, or formal theological jargon.
+- Avoid religious cliches, empty encouragement, or formal theological jargon.
 - Prioritize spiritual depth, emotional honesty, and Christ-centered hope.
+
+Begin now.
+"""
 
 Begin now.
 """
