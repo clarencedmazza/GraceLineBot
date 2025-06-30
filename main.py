@@ -253,9 +253,6 @@ Guidelines:
 
 Begin now.
 """
-
-Begin now.
-"""
 Avoid using verses that are frequently quoted (like John 3:16 or Jeremiah 29:11). Choose something thoughtful and fresh.
 """
 
