@@ -251,10 +251,37 @@ Guidelines:
 - Avoid religious cliches, empty encouragement, or formal theological jargon.
 - Prioritize spiritual depth, emotional honesty, and Christ-centered hope.
 
+Avoid using verses that are frequently quoted (like John 3:16 or Jeremiah 29:11). Choose something thoughtful and fresh.
+
 Begin now.
 """
-Avoid using verses that are frequently quoted (like John 3:16 or Jeremiah 29:11). Choose something thoughtful and fresh.
-"""
+
+    max_attempts = 5
+    for attempt in range(max_attempts):
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-4-turbo",
+                messages=[{"role": "user", "content": prompt}]
+            )
+            content = response['choices'][0]['message']['content'].strip()
+            verse_ref = extract_verse_reference(content)
+
+            logging.info(f"[DEVO] Attempt {attempt + 1} - Verse found: {verse_ref or 'None'}")
+
+            if verse_ref and not is_verse_used_this_year(verse_ref):
+                mark_verse_as_used(verse_ref)
+                if chat_id:
+                    user_devotionals[chat_id] = content
+                return content
+
+        except Exception as e:
+            logging.exception("Error generating or checking devotional verse")
+
+    return (
+        "🕊️ I wasn’t able to generate a fresh devotional today without repeating a verse. "
+        "Please try again tomorrow."
+    )
+
 
     max_attempts = 5
     for attempt in range(max_attempts):
