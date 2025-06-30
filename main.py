@@ -5,6 +5,9 @@ import openai
 from datetime import datetime
 import redis
 import logging
+import re
+import random
+from datetime import datetime
 
 # Setup logging
 logging.basicConfig(
@@ -203,10 +206,6 @@ Always respond in a way that directly acknowledges the user’s unique message, 
     except Exception as e:
         logging.exception("OpenAI error in chat_with_gpt")
         return "I'm having trouble connecting to my spiritual guidance center. Please try again later."
-
-import re
-import random
-from datetime import datetime
 
 def extract_verse_reference(text):
     """
