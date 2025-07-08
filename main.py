@@ -283,7 +283,8 @@ Begin now.
                 mark_verse_as_used(verse_ref)
                 if chat_id:
                     save_user_devotional(chat_id, content)
-                return content
+                return content  # This is still returned regardless of whether chat_id exists
+
 
         except Exception as e:
             logging.exception("Error generating or checking devotional verse")
