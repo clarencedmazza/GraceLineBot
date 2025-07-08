@@ -3,3 +3,4 @@ requests
 openai==0.28.1
 gunicorn
 redis>=5.0.0
+rq
