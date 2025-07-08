@@ -240,8 +240,7 @@ def mark_verse_as_used(verse_ref):
     year_key = f"used_devo_verses:{datetime.now().year}"
     r.sadd(year_key, verse_ref)
 
-if chat_id:
-    save_user_devotional(chat_id, content)
+def generate_devotional(chat_id=None):
     prompt = """
 You are a seasoned Christian spiritual guide and writer. Craft a daily devotional (max 400 words) that is biblical, wise, and deeply personal.
 
@@ -268,7 +267,6 @@ Avoid using verses that are frequently quoted (like John 3:16 or Jeremiah 29:11)
 
 Begin now.
 """
-
     max_attempts = 5
     for attempt in range(max_attempts):
         try:
@@ -284,7 +282,7 @@ Begin now.
             if verse_ref and not is_verse_used_this_year(verse_ref):
                 mark_verse_as_used(verse_ref)
                 if chat_id:
-                    user_devotionals[chat_id] = content
+                    save_user_devotional(chat_id, content)
                 return content
 
         except Exception as e:
@@ -294,34 +292,6 @@ Begin now.
         "🕊️ I wasn’t able to generate a fresh devotional today without repeating a verse. "
         "Please try again tomorrow."
     )
-
-
-    max_attempts = 5
-    for attempt in range(max_attempts):
-        try:
-            response = openai.ChatCompletion.create(
-                model="gpt-4-turbo",
-                messages=[{"role": "user", "content": prompt}]
-            )
-            content = response['choices'][0]['message']['content'].strip()
-            verse_ref = extract_verse_reference(content)
-
-            logging.info(f"[DEVO] Attempt {attempt + 1} - Verse found: {verse_ref or 'None'}")
-
-            if verse_ref and not is_verse_used_this_year(verse_ref):
-                mark_verse_as_used(verse_ref)
-                if chat_id:
-                    user_devotionals[chat_id] = content
-                return content
-
-        except Exception as e:
-            logging.exception("Error generating or checking devotional verse")
-
-    return (
-        "🕊️ I wasn’t able to generate a fresh devotional today without repeating a verse. "
-        "Please try again tomorrow."
-    )
-
 
 def generate_additional_verse():
     try:
