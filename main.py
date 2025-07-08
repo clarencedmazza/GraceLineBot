@@ -118,7 +118,10 @@ def handle_custom_commands(chat_id, user_input):
             return "There are no prayers to delete."
 
         elif lower_input == '/devo':
-            return generate_devotional(chat_id)
+            from tasks import queue_devotional
+            queue_devotional(chat_id)
+            return "📖 Preparing your devotional... I'll send it shortly."
+
 
         elif lower_input in ['another verse', 'more scripture', 'share another verse', 'can i hear another verse']:
             return generate_additional_verse()
