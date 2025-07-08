@@ -124,10 +124,10 @@ def handle_custom_commands(chat_id, user_input):
             return generate_additional_verse()
 
         elif lower_input == '/meditate':
-    last_devo = get_user_devotional(chat_id)
-    if not last_devo:
-        return "🕊️ No devotional found yet. Start with `/devo` first."
-    return generate_meditation_from_devo(last_devo)
+            last_devo = get_user_devotional(chat_id)
+            if not last_devo:
+                return "🕊️ No devotional found yet. Start with `/devo` first."
+            return generate_meditation_from_devo(last_devo)
 
 
         elif lower_input == '/start':
