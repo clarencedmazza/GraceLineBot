@@ -25,7 +25,15 @@ BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 # Connect to Redis
 r = redis.from_url(os.getenv("REDIS_URL"))
 
-user_devotionals = {}  # Still in memory for now 
+# Save devotional to Redis
+def save_user_devotional(chat_id, content):
+    r.set(f"user_devo:{chat_id}", content)
+
+# Load devotional from Redis
+def get_user_devotional(chat_id):
+    result = r.get(f"user_devo:{chat_id}")
+    return result.decode('utf-8') if result else None
+ 
 
 def current_time():
     return datetime.now().strftime("%b %d, %Y %I:%M %p")
@@ -116,10 +124,11 @@ def handle_custom_commands(chat_id, user_input):
             return generate_additional_verse()
 
         elif lower_input == '/meditate':
-            last_devo = user_devotionals.get(chat_id)
-            if not last_devo:
-                return "🕊️ No devotional found yet. Start with `/devo` first."
-            return generate_meditation_from_devo(last_devo)
+    last_devo = get_user_devotional(chat_id)
+    if not last_devo:
+        return "🕊️ No devotional found yet. Start with `/devo` first."
+    return generate_meditation_from_devo(last_devo)
+
 
         elif lower_input == '/start':
             return (
@@ -231,7 +240,8 @@ def mark_verse_as_used(verse_ref):
     year_key = f"used_devo_verses:{datetime.now().year}"
     r.sadd(year_key, verse_ref)
 
-def generate_devotional(chat_id=None):
+if chat_id:
+    save_user_devotional(chat_id, content)
     prompt = """
 You are a seasoned Christian spiritual guide and writer. Craft a daily devotional (max 400 words) that is biblical, wise, and deeply personal.
 
