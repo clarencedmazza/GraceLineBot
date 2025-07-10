@@ -22,8 +22,14 @@ app = Flask(__name__)
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
-# Connect to Redis
-r = redis.from_url(os.getenv("REDIS_URL"))
+from dotenv import load_dotenv
+load_dotenv()
+
+redis_url = os.getenv("REDIS_URL")
+if not redis_url:
+    raise RuntimeError("REDIS_URL environment variable is not set")
+
+r = redis.from_url(redis_url)
 
 # Save devotional to Redis
 def save_user_devotional(chat_id, content):
