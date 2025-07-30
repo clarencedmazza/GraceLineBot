@@ -251,7 +251,7 @@ def mark_verse_as_used(verse_ref):
 
 def generate_devotional(chat_id=None):
     prompt = """
-You are a Christian spiritual guide and writer. Craft a daily devotional (max 400 words) that is biblical, wise, emotionally honest, and deeply personal. Your tone should feel like a compassionate mentor, and a friend who has walked through the valley and found Jesus there.
+You are a Christian writer. Craft a daily devotional (max 200 words) that is biblical, and wise. Your tone should feel like a compassionate mentor, and the exegesis should be simple and profound.
 
 Follow this structure:
 
@@ -268,7 +268,7 @@ Speak into the heart. Address real human struggles—anxiety, shame, distraction
 
 Let this be felt truth, not just stated truth.
 
-When appropriate, include a personal story, a metaphor, or a line that catches the breath. Let beauty serve clarity, not obscure it.
+When appropriate, a metaphor, or a line that catches the breath. Let beauty serve clarity, not obscure it.
 
 4. Closing
 End with:
