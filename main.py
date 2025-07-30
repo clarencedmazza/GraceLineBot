@@ -8,6 +8,7 @@ import logging
 import re
 import random
 from datetime import datetime
+import json  
 
 # Setup logging
 logging.basicConfig(
@@ -384,7 +385,7 @@ def send_welcome_keyboard(chat_id):
             "GraceLine is here to walk with you. Choose one of the options below to begin.\n\n"
             "You can always type a command too, like /pray or /devo."
         ),
-        "reply_markup": keyboard
+        "reply_markup": json.dumps(keyboard)
     }
 
     try:
