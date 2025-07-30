@@ -272,7 +272,7 @@ When appropriate, a metaphor, or a line that catches the breath. Let beauty serv
 
 4. Closing
 End with:
-- A short, soulful, and scripted personal prayer flowing naturally from the devotional.
+- A short, soulful, and scripted first person prayer flowing naturally from the devotional.
 - A reflection question that draws the reader deeper into personal communion with God.
 
 Tone Guidelines:
