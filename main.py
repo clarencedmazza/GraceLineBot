@@ -259,7 +259,7 @@ Follow this structure:
 Begin with a short, complete ESV passage (2–5 verses) that is spiritually rich but not overused. Include the full citation (e.g., Romans 8:38–39). Choose a verse that lends itself to reflection and invites fresh insight.
 
 2. Insight
-Gently unpack the verse in its biblical and historical context. Let the truth shine, but speak it with warmth, not academic distance. When helpful, weave in the voices of trusted guides (e.g., Spurgeon, Tozer, Bonhoeffer, Keller, Lewis). Let Scripture breathe—avoid sounding like a commentary.
+Gently unpack the verse in its biblical and historical context. Let the truth shine, but speak it with warmth, not academic distance. When helpful, weave in the voices of trusted christian writers. Let Scripture breathe—avoid sounding like a commentary.
 
 You may use imagery, analogy, or even metaphor.
 
